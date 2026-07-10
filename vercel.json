@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/copilotai",
+      "destination": "https://clientpilot-ai-olive.vercel.app/copilotai"
+    },
+    {
+      "source": "/copilotai/:path*",
+      "destination": "https://clientpilot-ai-olive.vercel.app/copilotai/:path*"
+    }
+  ]
+}
