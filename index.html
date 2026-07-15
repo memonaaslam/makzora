@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -315,7 +315,7 @@
     font-family:'Poppins',sans-serif; font-weight:500; font-size:12.5px; letter-spacing:0.03em;
     color:#fff; padding:0 28px; display:inline-flex; align-items:center; gap:10px;
   }
-  .marquee-track span::after{content:'â€¢'; color:var(--gold-soft); margin-left:28px;}
+  .marquee-track span::after{content:"";display:inline-block;width:7px;height:7px;margin:0 28px;border-radius:50%;background:#c8a45a;vertical-align:middle;box-shadow:0 0 0 4px rgba(200,164,90,.12);}
   @keyframes marqueeScroll{from{transform:translateX(0);} to{transform:translateX(-50%);}}
   @media (prefers-reduced-motion: reduce){.marquee-track{animation:none;}}
 
