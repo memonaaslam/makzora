@@ -990,6 +990,11 @@ async function startSafepay(event, plan) {
 
     const data = await response.json();
 
+    if (response.status === 401) {
+      window.location.href = "https://www.makzora.com/clientpilotai/login";
+      return;
+    }
+
     if (!response.ok) {
       throw new Error(data.error || "Unable to start checkout");
     }
@@ -1035,6 +1040,11 @@ async function startSafepay(event, plan) {
     );
 
     const data = await response.json();
+
+    if (response.status === 401) {
+      window.location.href = "https://www.makzora.com/clientpilotai/login";
+      return;
+    }
 
     if (!response.ok) {
       throw new Error(data.error || "Unable to start checkout");
