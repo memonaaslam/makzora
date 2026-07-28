@@ -3,11 +3,11 @@
   "rewrites": [
     {
       "source": "/clientpilotai",
-      "destination": "https://app.makzora.com/clientpilotai"
+      "destination": "https://clientpilot-ai-olive.vercel.app/clientpilotai"
     },
     {
       "source": "/clientpilotai/:path*",
-      "destination": "https://app.makzora.com/clientpilotai/:path*"
+      "destination": "https://clientpilot-ai-olive.vercel.app/clientpilotai/:path*"
     }
   ]
 }
