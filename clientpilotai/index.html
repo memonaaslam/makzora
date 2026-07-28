@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClientPilot AI — AI-Powered Sales Automation | By Makzora</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root {
+  --purple:#8E2E9E; --purple-light:#B23FB8; --purple-deep:#6B1F78;
+  --teal:#0FA89A; --teal-light:#1CC9B8; --teal-deep:#0B8579;
+  --charcoal:#232129; --charcoal-soft:#57545f; --charcoal-mute:#8A8794;
+  --bg-gray:#F6F4F9; --white:#FFFFFF; --gold:#C9A233; --gold-soft:#E4C77A;
+  --grad:linear-gradient(120deg, var(--purple) 0%, var(--purple-light) 35%, var(--teal) 100%);
+  --radius-lg:24px; --radius-md:16px; --radius-sm:12px;
+  --shadow-card:0 20px 45px -20px rgba(35,33,41,0.18);
+  --shadow-soft:0 8px 24px -10px rgba(35,33,41,0.10);
+  --shadow-elevated:0 32px 64px -24px rgba(35,33,41,0.25);
+  --shadow-glow:0 0 60px rgba(142,46,158,0.15);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; font-size:16px; }
+body { font-family:'Inter',-apple-system,sans-serif; color:var(--charcoal); background:var(--white); line-height:1.6; -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+#three-canvas { position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none; }
+
+/* NAVBAR */
+.navbar { position:fixed; top:0; left:0; right:0; z-index:1000; padding:14px 40px; display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.8); backdrop-filter:blur(20px); border-bottom:1px solid rgba(142,46,158,0.08); transition:all 0.4s cubic-bezier(0.16,1,0.3,1); }
+.navbar.scrolled { padding:10px 40px; background:rgba(255,255,255,0.95); box-shadow:0 4px 30px rgba(35,33,41,0.08); }
+.nav-left { display:flex; align-items:center; gap:20px; }
+.nav-logo-cp { display:flex; align-items:center; gap:10px; text-decoration:none; }
+.cp-icon { width:36px; height:36px; background:linear-gradient(135deg,#3D2B4F 0%,#2A1F3D 100%); border-radius:10px; display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:13px; letter-spacing:0.5px; box-shadow:0 4px 15px rgba(61,43,79,0.3); }
+.nav-logo-cp span { font-size:18px; font-weight:700; color:var(--charcoal); letter-spacing:-0.3px; }
+.nav-logo-mak { display:flex; align-items:center; gap:8px; text-decoration:none; padding-left:18px; border-left:1px solid rgba(142,46,158,0.15); }
+.mak-icon { width:32px; height:32px; }
+.nav-logo-mak span { font-size:14px; font-weight:600; color:var(--charcoal-soft); }
+.nav-links { display:flex; align-items:center; gap:32px; list-style:none; }
+.nav-links a { text-decoration:none; color:var(--charcoal-soft); font-size:14px; font-weight:500; transition:color 0.3s; position:relative; }
+.nav-links a::after { content:''; position:absolute; bottom:-4px; left:0; width:0; height:2px; background:var(--grad); border-radius:2px; transition:width 0.3s cubic-bezier(0.16,1,0.3,1); }
+.nav-links a:hover { color:var(--purple); }
+.nav-links a:hover::after { width:100%; }
+.nav-cta { display:flex; align-items:center; gap:16px; }
+.nav-cta .login { font-size:14px; font-weight:500; color:var(--charcoal-soft); text-decoration:none; }
+.nav-cta .btn-primary { background:var(--grad); color:white; padding:10px 24px; border-radius:100px; font-size:14px; font-weight:600; text-decoration:none; border:none; cursor:pointer; transition:all 0.3s; box-shadow:0 4px 20px rgba(142,46,158,0.3); }
+.nav-cta .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(142,46,158,0.4); }
+
+/* HERO */
+.hero { position:relative; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:140px 40px 80px; overflow:hidden; z-index:1; }
+.hero-content { text-align:center; max-width:900px; position:relative; z-index:2; }
+.hero-badge { display:inline-flex; align-items:center; gap:8px; background:rgba(142,46,158,0.08); border:1px solid rgba(142,46,158,0.15); padding:8px 20px; border-radius:100px; font-size:13px; font-weight:600; color:var(--purple); margin-bottom:32px; animation:fadeInUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.2s both; }
+.hero-badge .dot { width:8px; height:8px; background:var(--teal); border-radius:50%; animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+.hero h1 { font-size:clamp(40px,6vw,72px); font-weight:800; line-height:1.1; letter-spacing:-2px; margin-bottom:24px; animation:fadeInUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.4s both; }
+.hero h1 .gradient-text { background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.hero p { font-size:clamp(16px,2vw,20px); color:var(--charcoal-soft); max-width:600px; margin:0 auto 40px; line-height:1.7; animation:fadeInUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.6s both; }
+
+/* ANIMATED BADGES ROW */
+.hero-badges { display:flex; justify-content:center; gap:20px; margin-bottom:40px; flex-wrap:wrap; animation:fadeInUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.7s both; }
+.hero-badges .hb { display:flex; align-items:center; gap:10px; font-size:14px; font-weight:600; color:var(--charcoal-soft); background:rgba(255,255,255,0.7); backdrop-filter:blur(10px); padding:10px 18px; border-radius:100px; border:1px solid rgba(142,46,158,0.1); box-shadow:0 4px 15px rgba(35,33,41,0.06); transition:all 0.4s cubic-bezier(0.16,1,0.3,1); animation:floatBadge 4s ease-in-out infinite; }
+.hero-badges .hb:nth-child(1) { animation-delay:0s; }
+.hero-badges .hb:nth-child(2) { animation-delay:0.5s; }
+.hero-badges .hb:nth-child(3) { animation-delay:1s; }
+.hero-badges .hb:nth-child(4) { animation-delay:1.5s; }
+@keyframes floatBadge { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+.hero-badges .hb:hover { transform:translateY(-4px) scale(1.05); box-shadow:0 8px 25px rgba(142,46,158,0.15); border-color:rgba(142,46,158,0.2); }
+.hero-badges .hb .hb-icon { width:28px; height:28px; background:linear-gradient(120deg,rgba(142,46,158,0.1),rgba(15,168,154,0.1)); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px; }
+.hero-badges .hb strong { color:var(--charcoal); }
+
+.hero-cta { display:flex; justify-content:center; gap:16px; flex-wrap:wrap; animation:fadeInUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.8s both; }
+.hero-cta .btn-glow { background:var(--grad); color:white; padding:16px 40px; border-radius:100px; font-size:16px; font-weight:700; text-decoration:none; border:none; cursor:pointer; transition:all 0.4s; box-shadow:0 8px 40px rgba(142,46,158,0.35), 0 0 80px rgba(142,46,158,0.15); position:relative; overflow:hidden; }
+.hero-cta .btn-glow::before { content:''; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent); transition:left 0.6s; }
+.hero-cta .btn-glow:hover::before { left:100%; }
+.hero-cta .btn-glow:hover { transform:translateY(-3px) scale(1.02); box-shadow:0 12px 50px rgba(142,46,158,0.45); }
+.hero-cta .btn-ghost { background:transparent; color:var(--charcoal); padding:16px 40px; border-radius:100px; font-size:16px; font-weight:600; text-decoration:none; border:1.5px solid rgba(142,46,158,0.2); cursor:pointer; transition:all 0.3s; }
+.hero-cta .btn-ghost:hover { border-color:var(--purple); color:var(--purple); background:rgba(142,46,158,0.05); }
+
+/* FLOATING CARDS */
+.floating-cards { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:100%; height:100%; pointer-events:none; z-index:1; perspective:1200px; }
+.float-card { position:absolute; background:rgba(255,255,255,0.85); backdrop-filter:blur(20px); border-radius:var(--radius-md); padding:20px; box-shadow:var(--shadow-card); border:1px solid rgba(142,46,158,0.08); animation:float 6s ease-in-out infinite; }
+.float-card:nth-child(1) { top:15%; left:8%; animation-delay:0s; }
+.float-card:nth-child(2) { top:20%; right:8%; animation-delay:1.5s; }
+.float-card:nth-child(3) { bottom:25%; left:5%; animation-delay:3s; }
+.float-card:nth-child(4) { bottom:20%; right:6%; animation-delay:4.5s; }
+@keyframes float { 0%,100%{transform:translateY(0) rotate(0deg)} 25%{transform:translateY(-15px) rotate(1deg)} 50%{transform:translateY(-5px) rotate(-0.5deg)} 75%{transform:translateY(-20px) rotate(0.5deg)} }
+.float-card .fc-icon { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px; margin-bottom:12px; }
+.float-card .fc-icon.purple { background:linear-gradient(135deg,var(--purple),var(--purple-light)); color:white; }
+.float-card .fc-icon.teal { background:linear-gradient(135deg,var(--teal),var(--teal-light)); color:white; }
+.float-card .fc-icon.gold { background:linear-gradient(135deg,var(--gold),var(--gold-soft)); color:white; }
+.float-card .fc-title { font-size:13px; font-weight:700; color:var(--charcoal); margin-bottom:4px; }
+.float-card .fc-desc { font-size:12px; color:var(--charcoal-mute); }
+.float-card .fc-time { font-size:11px; color:var(--teal); font-weight:600; margin-top:8px; }
+
+/* SECTIONS */
+.section { position:relative; z-index:1; padding:100px 40px; }
+.section-alt { background:var(--bg-gray); }
+.section-header { text-align:center; max-width:700px; margin:0 auto 60px; }
+.section-header .sh-label { display:inline-block; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:var(--purple); margin-bottom:16px; padding:6px 16px; background:rgba(142,46,158,0.08); border-radius:100px; }
+.section-header h2 { font-size:clamp(28px,4vw,48px); font-weight:800; line-height:1.15; letter-spacing:-1.5px; margin-bottom:16px; }
+.section-header p { font-size:18px; color:var(--charcoal-soft); line-height:1.7; }
+
+/* FEATURES GRID */
+.features-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:24px; max-width:1200px; margin:0 auto; }
+.feature-card { background:white; border-radius:var(--radius-lg); padding:36px; box-shadow:var(--shadow-soft); border:1px solid rgba(142,46,158,0.06); transition:all 0.5s cubic-bezier(0.16,1,0.3,1); position:relative; overflow:hidden; }
+.feature-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--grad); transform:scaleX(0); transform-origin:left; transition:transform 0.5s cubic-bezier(0.16,1,0.3,1); }
+.feature-card:hover { transform:translateY(-8px); box-shadow:var(--shadow-elevated); }
+.feature-card:hover::before { transform:scaleX(1); }
+.feature-card .f-icon { width:56px; height:56px; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; font-size:24px; margin-bottom:20px; }
+.feature-card .f-icon.purple-bg { background:linear-gradient(135deg,rgba(142,46,158,0.1),rgba(178,63,184,0.1)); }
+.feature-card .f-icon.teal-bg { background:linear-gradient(135deg,rgba(15,168,154,0.1),rgba(28,201,184,0.1)); }
+.feature-card .f-icon.gold-bg { background:linear-gradient(135deg,rgba(201,162,51,0.1),rgba(228,199,122,0.1)); }
+.feature-card h3 { font-size:20px; font-weight:700; margin-bottom:10px; color:var(--charcoal); }
+.feature-card p { font-size:15px; color:var(--charcoal-soft); line-height:1.7; }
+
+/* WORKFLOW */
+.workflow { max-width:1100px; margin:0 auto; }
+.workflow-steps { display:flex; flex-direction:column; gap:0; position:relative; }
+.workflow-steps::before { content:''; position:absolute; left:40px; top:60px; bottom:60px; width:2px; background:linear-gradient(to bottom,var(--purple),var(--teal)); opacity:0.3; }
+.wf-step { display:flex; align-items:flex-start; gap:32px; padding:32px 0; position:relative; }
+.wf-step .wf-num { width:80px; height:80px; border-radius:var(--radius-lg); background:white; box-shadow:var(--shadow-soft); display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:800; color:var(--purple); flex-shrink:0; border:2px solid rgba(142,46,158,0.1); position:relative; z-index:2; }
+.wf-step .wf-content { flex:1; background:white; border-radius:var(--radius-lg); padding:32px; box-shadow:var(--shadow-soft); border:1px solid rgba(142,46,158,0.06); transition:all 0.4s cubic-bezier(0.16,1,0.3,1); }
+.wf-step .wf-content:hover { box-shadow:var(--shadow-card); transform:translateX(8px); }
+.wf-step .wf-content h3 { font-size:22px; font-weight:700; margin-bottom:8px; }
+.wf-step .wf-content p { font-size:15px; color:var(--charcoal-soft); line-height:1.7; }
+
+/* DASHBOARD */
+.dashboard-preview { max-width:1100px; margin:0 auto; background:white; border-radius:var(--radius-lg); box-shadow:var(--shadow-elevated); border:1px solid rgba(142,46,158,0.08); overflow:hidden; }
+.db-header { background:linear-gradient(135deg,var(--purple),var(--purple-light)); color:white; padding:24px 32px; display:flex; align-items:center; justify-content:space-between; }
+.db-header .db-greeting { font-size:18px; font-weight:700; }
+.db-header .db-greeting span { font-weight:400; opacity:0.8; }
+.db-header .db-date { font-size:13px; opacity:0.7; }
+.db-body { padding:32px; }
+.db-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; margin-bottom:32px; }
+.db-stat { background:var(--bg-gray); border-radius:var(--radius-md); padding:20px; border:1px solid rgba(142,46,158,0.06); transition:all 0.3s; }
+.db-stat:hover { transform:translateY(-4px); box-shadow:var(--shadow-soft); }
+.db-stat .db-stat-label { font-size:12px; font-weight:600; color:var(--charcoal-mute); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; }
+.db-stat .db-stat-value { font-size:28px; font-weight:800; color:var(--charcoal); }
+.db-stat .db-stat-change { font-size:12px; font-weight:600; margin-top:4px; }
+.db-stat .db-stat-change.up { color:var(--teal); }
+.db-stat .db-stat-change.action { color:var(--gold); }
+.db-meetings h4 { font-size:14px; font-weight:700; color:var(--charcoal-mute); text-transform:uppercase; letter-spacing:1px; margin-bottom:16px; }
+.db-meeting-item { display:flex; align-items:center; gap:16px; padding:14px 16px; border-radius:var(--radius-sm); background:rgba(142,46,158,0.03); margin-bottom:8px; transition:all 0.3s; }
+.db-meeting-item:hover { background:rgba(142,46,158,0.06); transform:translateX(4px); }
+.db-meeting-item .db-m-time { font-size:13px; font-weight:700; color:var(--purple); min-width:70px; }
+.db-meeting-item .db-m-title { font-size:14px; font-weight:600; color:var(--charcoal); }
+.db-meeting-item .db-m-status { margin-left:auto; font-size:12px; font-weight:600; padding:4px 12px; border-radius:100px; }
+.db-m-status.today { background:rgba(15,168,154,0.1); color:var(--teal); }
+.db-m-status.tomorrow { background:rgba(142,46,158,0.1); color:var(--purple); }
+
+/* PIPELINE */
+.pipeline-track { display:flex; gap:0; max-width:900px; margin:40px auto 0; }
+.pipeline-stage { flex:1; text-align:center; padding:20px 12px; position:relative; }
+.pipeline-stage::after { content:''; position:absolute; top:24px; right:-20px; width:40px; height:2px; background:linear-gradient(90deg,var(--purple),var(--teal)); opacity:0.3; }
+.pipeline-stage:last-child::after { display:none; }
+.pipeline-stage .ps-dot { width:16px; height:16px; border-radius:50%; background:var(--grad); margin:0 auto 12px; box-shadow:0 0 20px rgba(142,46,158,0.3); animation:dotPulse 2s infinite; }
+@keyframes dotPulse { 0%,100%{box-shadow:0 0 20px rgba(142,46,158,0.3)} 50%{box-shadow:0 0 30px rgba(142,46,158,0.5)} }
+.pipeline-stage .ps-label { font-size:13px; font-weight:700; color:var(--charcoal); }
+.pipeline-stage .ps-count { font-size:11px; color:var(--charcoal-mute); margin-top:4px; }
+
+/* COMPARISON */
+.comparison-section { max-width:1000px; margin:0 auto; }
+.comparison-grid { display:grid; grid-template-columns:1fr auto 1fr; gap:24px; align-items:center; }
+.comparison-card { background:white; border-radius:var(--radius-lg); padding:32px; box-shadow:var(--shadow-soft); border:1px solid rgba(142,46,158,0.06); }
+.comparison-card.with { border:2px solid var(--purple); box-shadow:var(--shadow-glow),var(--shadow-card); }
+.comparison-card h4 { font-size:16px; font-weight:700; margin-bottom:20px; }
+.comparison-card.without h4 { color:var(--charcoal-mute); }
+.comparison-card.with h4 { color:var(--purple); }
+.comp-item { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid rgba(142,46,158,0.05); font-size:14px; }
+.comp-item:last-child { border-bottom:none; }
+.comp-item .comp-x { color:#e74c3c; font-weight:700; }
+.comp-item .comp-check { color:var(--teal); font-weight:700; }
+.comp-arrow { width:50px; height:50px; border-radius:50%; background:var(--grad); display:flex; align-items:center; justify-content:center; color:white; font-size:20px; box-shadow:0 4px 20px rgba(142,46,158,0.3); animation:arrowBounce 2s infinite; }
+@keyframes arrowBounce { 0%,100%{transform:translateX(0)} 50%{transform:translateX(8px)} }
+
+/* PRICING */
+.pricing-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:24px; max-width:1200px; margin:0 auto; }
+.pricing-card { background:white; border-radius:var(--radius-lg); padding:40px 32px; box-shadow:var(--shadow-soft); border:1px solid rgba(142,46,158,0.06); transition:all 0.5s cubic-bezier(0.16,1,0.3,1); position:relative; overflow:hidden; }
+.pricing-card.popular { border:2px solid var(--purple); transform:scale(1.03); box-shadow:var(--shadow-glow),var(--shadow-card); }
+.pricing-card.popular::after { content:'Most Popular'; position:absolute; top:16px; right:-40px; background:var(--grad); color:white; font-size:11px; font-weight:700; padding:4px 40px; transform:rotate(45deg); }
+.pricing-card:hover { transform:translateY(-10px); box-shadow:var(--shadow-elevated); }
+.pricing-card.popular:hover { transform:scale(1.03) translateY(-10px); }
+.pricing-card .pc-tag { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:var(--purple); margin-bottom:12px; }
+.pricing-card .pc-name { font-size:24px; font-weight:800; margin-bottom:8px; }
+.pricing-card .pc-desc { font-size:14px; color:var(--charcoal-mute); margin-bottom:24px; }
+.pricing-card .pc-price { font-size:48px; font-weight:900; color:var(--charcoal); margin-bottom:24px; display:flex; align-items:baseline; gap:4px; }
+.pricing-card .pc-price span { font-size:16px; font-weight:500; color:var(--charcoal-mute); }
+.pricing-card ul { list-style:none; margin-bottom:32px; }
+.pricing-card ul li { font-size:14px; color:var(--charcoal-soft); padding:8px 0; display:flex; align-items:center; gap:10px; border-bottom:1px solid rgba(142,46,158,0.05); }
+.pricing-card ul li::before { content:'✓'; width:20px; height:20px; background:rgba(15,168,154,0.1); color:var(--teal); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0; }
+.pricing-card .pc-btn { width:100%; padding:14px; border-radius:100px; font-size:15px; font-weight:700; text-align:center; text-decoration:none; border:none; cursor:pointer; transition:all 0.3s; display:inline-block; }
+.pricing-card .pc-btn.primary { background:var(--grad); color:white; box-shadow:0 4px 20px rgba(142,46,158,0.3); }
+.pricing-card .pc-btn.primary:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(142,46,158,0.4); }
+.pricing-card .pc-btn.ghost { background:transparent; color:var(--charcoal); border:1.5px solid rgba(142,46,158,0.2); }
+.pricing-card .pc-btn.ghost:hover { border-color:var(--purple); color:var(--purple); background:rgba(142,46,158,0.05); }
+
+/* CTA */
+.cta-section { position:relative; padding:120px 40px; text-align:center; overflow:hidden; z-index:1; }
+.cta-section::before { content:''; position:absolute; inset:0; background:var(--grad); opacity:0.05; z-index:-1; }
+.cta-section h2 { font-size:clamp(32px,5vw,56px); font-weight:800; line-height:1.1; letter-spacing:-2px; margin-bottom:20px; color:var(--charcoal); }
+.cta-section p { font-size:18px; color:var(--charcoal-soft); max-width:500px; margin:0 auto 40px; }
+.cta-section .cta-btn { display:inline-block; background:var(--grad); color:white; padding:18px 48px; border-radius:100px; font-size:17px; font-weight:700; text-decoration:none; border:none; cursor:pointer; transition:all 0.4s; box-shadow:0 8px 40px rgba(142,46,158,0.35); }
+.cta-section .cta-btn:hover { transform:translateY(-3px) scale(1.03); box-shadow:0 12px 50px rgba(142,46,158,0.45); }
+
+/* FOOTER */
+.footer { background:var(--charcoal); color:white; padding:80px 40px 40px; position:relative; z-index:1; }
+.footer-grid { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:48px; max-width:1200px; margin:0 auto 60px; }
+.footer-brand .fb-logo { display:flex; align-items:center; gap:12px; margin-bottom:20px; }
+.footer-brand .fb-logo .cp-icon { width:44px; height:44px; background:linear-gradient(135deg,#3D2B4F 0%,#2A1F3D 100%); border-radius:12px; display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:16px; }
+.footer-brand .fb-logo span { font-size:22px; font-weight:700; }
+.footer-brand p { font-size:15px; color:rgba(255,255,255,0.6); line-height:1.7; margin-bottom:24px; }
+.footer-brand .dev-by { display:flex; align-items:center; gap:12px; padding:16px 20px; background:rgba(255,255,255,0.05); border-radius:var(--radius-md); border:1px solid rgba(255,255,255,0.08); }
+.footer-brand .dev-by .mak-icon { width:40px; height:40px; }
+.footer-brand .dev-by .dev-text { font-size:13px; color:rgba(255,255,255,0.5); }
+.footer-brand .dev-by .dev-text strong { color:white; font-size:14px; display:block; }
+.footer-col h4 { font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:rgba(255,255,255,0.4); margin-bottom:20px; }
+.footer-col ul { list-style:none; }
+.footer-col ul li { margin-bottom:12px; }
+.footer-col ul li a { color:rgba(255,255,255,0.6); text-decoration:none; font-size:14px; transition:color 0.3s; }
+.footer-col ul li a:hover { color:var(--teal-light); }
+.footer-contact { max-width:1200px; margin:0 auto; padding-top:40px; border-top:1px solid rgba(255,255,255,0.08); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px; }
+.footer-contact .fc-info { display:flex; gap:32px; flex-wrap:wrap; }
+.footer-contact .fc-info a { color:rgba(255,255,255,0.5); text-decoration:none; font-size:14px; display:flex; align-items:center; gap:8px; transition:color 0.3s; }
+.footer-contact .fc-info a:hover { color:var(--teal-light); }
+.footer-contact .fc-social { display:flex; gap:16px; }
+.footer-contact .fc-social a { width:40px; height:40px; border-radius:10px; background:rgba(255,255,255,0.05); display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,0.6); text-decoration:none; transition:all 0.3s; border:1px solid rgba(255,255,255,0.08); }
+.footer-contact .fc-social a:hover { background:var(--purple); color:white; border-color:var(--purple); transform:translateY(-3px); }
+.footer-bottom { max-width:1200px; margin:32px auto 0; padding-top:24px; border-top:1px solid rgba(255,255,255,0.06); text-align:center; font-size:13px; color:rgba(255,255,255,0.3); }
+
+/* ANIMATIONS */
+@keyframes fadeInUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+.reveal { opacity:0; transform:translateY(40px); transition:all 0.8s cubic-bezier(0.16,1,0.3,1); }
+.reveal.active { opacity:1; transform:translateY(0); }
+
+/* RESPONSIVE */
+@media(max-width:1024px) { .footer-grid{grid-template-columns:1fr 1fr} .nav-links{display:none} .comparison-grid{grid-template-columns:1fr} .comp-arrow{display:none} }
+@media(max-width:768px) {
+  .navbar{padding:12px 20px} .hero{padding:120px 20px 60px} .section{padding:60px 20px}
+  .footer-grid{grid-template-columns:1fr} .footer-contact{flex-direction:column;text-align:center}
+  .hero-badges{flex-direction:column;gap:12px} .hero-cta{flex-direction:column}
+  .float-card{display:none} .pricing-card.popular{transform:scale(1)} .pricing-card.popular:hover{transform:scale(1) translateY(-10px)}
+  .comparison-grid{grid-template-columns:1fr} .comp-arrow{display:none}
+  .pipeline-track{flex-wrap:wrap;gap:16px} .pipeline-stage::after{display:none}
+}
+::-webkit-scrollbar{width:8px} ::-webkit-scrollbar-track{background:var(--bg-gray)} ::-webkit-scrollbar-thumb{background:var(--purple);border-radius:4px}
+</style>
+</head>
+<body>
+
+<canvas id="three-canvas"></canvas>
+
+<nav class="navbar" id="navbar">
+  <div class="nav-left">
+    <a href="#" class="nav-logo-cp">
+      <div class="cp-icon">CP</div>
+      <span>ClientPilot AI</span>
+    </a>
+    <a href="https://www.makzora.com" target="_blank" class="nav-logo-mak">
+      <div class="mak-icon">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="makGradL" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#8E2E9E"/><stop offset="100%" stop-color="#B23FB8"/></linearGradient>
+            <linearGradient id="makGradR" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0FA89A"/><stop offset="100%" stop-color="#1CC9B8"/></linearGradient>
+          </defs>
+          <path d="M10 85 L10 15 L35 15 L50 45 L65 15 L90 15 L90 85 L70 85 L70 45 L50 75 L30 45 L30 85 Z" fill="url(#makGradL)"/>
+          <path d="M50 75 L70 45 L70 85 L90 85 L90 15 L65 15 L50 45 Z" fill="url(#makGradR)"/>
+          <circle cx="20" cy="25" r="2" fill="white" opacity="0.8"/><circle cx="15" cy="35" r="1.5" fill="white" opacity="0.6"/>
+          <circle cx="25" cy="40" r="1.5" fill="white" opacity="0.7"/><circle cx="18" cy="50" r="2" fill="white" opacity="0.5"/>
+          <circle cx="22" cy="60" r="1.5" fill="white" opacity="0.6"/><circle cx="16" cy="70" r="2" fill="white" opacity="0.7"/>
+          <circle cx="80" cy="25" r="2" fill="white" opacity="0.8"/><circle cx="85" cy="35" r="1.5" fill="white" opacity="0.6"/>
+          <circle cx="75" cy="40" r="1.5" fill="white" opacity="0.7"/><circle cx="82" cy="50" r="2" fill="white" opacity="0.5"/>
+          <circle cx="78" cy="60" r="1.5" fill="white" opacity="0.6"/><circle cx="84" cy="70" r="2" fill="white" opacity="0.7"/>
+        </svg>
+      </div>
+      <span>by Makzora</span>
+    </a>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#workflow">Workflow</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#footer">Contact</a></li>
+  </ul>
+  <div class="nav-cta">
+    <a href="https://www.makzora.com/clientpilotai/login" class="login">Log in</a>
+    <a href="https://www.makzora.com/clientpilotai/login" class="btn-primary">Start Free</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="floating-cards">
+    <div class="float-card">
+      <div class="fc-icon purple">MN</div>
+      <div class="fc-title">Meeting Notes</div>
+      <div class="fc-desc">Client conversation captured</div>
+      <div class="fc-time">10:30 AM</div>
+    </div>
+    <div class="float-card">
+      <div class="fc-icon teal">AI</div>
+      <div class="fc-title">AI Summary</div>
+      <div class="fc-desc">Key points extracted</div>
+      <div class="fc-time">10:31 AM</div>
+    </div>
+    <div class="float-card">
+      <div class="fc-icon gold">TK</div>
+      <div class="fc-title">Tasks Created</div>
+      <div class="fc-desc">5 tasks added automatically</div>
+      <div class="fc-time">10:31 AM</div>
+    </div>
+    <div class="float-card">
+      <div class="fc-icon purple">PR</div>
+      <div class="fc-title">Proposal Ready</div>
+      <div class="fc-desc">Professional proposal prepared</div>
+      <div class="fc-time">10:35 AM</div>
+    </div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-badge"><span class="dot"></span>AI-Powered Sales Automation</div>
+    <h1>Turn Every Client<br><span class="gradient-text">Conversation into Action</span></h1>
+    <p>ClientPilot AI transforms meetings into summaries, tasks, reminders, proposals, and sales activity visibility — so your team saves hours of manual work and closes more deals.</p>
+    <div class="hero-badges">
+      <div class="hb"><div class="hb-icon">⚡</div><strong>2 min</strong> setup</div>
+      <div class="hb"><div class="hb-icon">🔒</div><strong>Private</strong> workspace</div>
+      <div class="hb"><div class="hb-icon">👥</div><strong>Team</strong> ready</div>
+      <div class="hb"><div class="hb-icon">🚀</div><strong>Instant</strong> results</div>
+    </div>
+    <div class="hero-cta">
+      <a href="https://www.makzora.com/clientpilotai/login" class="btn-glow">Start Free Today</a>
+      <a href="#features" class="btn-ghost">Explore Features</a>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-header reveal">
+    <div class="sh-label">How It Works</div>
+    <h2>Meeting notes become<br><span class="gradient-text">clean summaries</span></h2>
+    <p>Decisions become action tasks. Follow-ups become reminders. Client needs become proposals.</p>
+  </div>
+  <div class="features-grid" style="max-width:1000px;">
+    <div class="feature-card reveal"><div class="f-icon purple-bg">📝</div><h3>Meeting Notes</h3><p>Upload recorded meetings and turn client conversations into searchable transcripts with speaker detection.</p></div>
+    <div class="feature-card reveal"><div class="f-icon teal-bg">🧠</div><h3>AI Summaries</h3><p>Extract client needs, decisions, objections and clear next steps automatically from every conversation.</p></div>
+    <div class="feature-card reveal"><div class="f-icon gold-bg">✅</div><h3>Action Tasks</h3><p>Important actions become organized tasks so nothing is forgotten — assigned with deadlines automatically.</p></div>
+    <div class="feature-card reveal"><div class="f-icon purple-bg">✉️</div><h3>Follow-Up Emails</h3><p>Generate professional follow-up emails based on the real meeting conversation and client context.</p></div>
+    <div class="feature-card reveal"><div class="f-icon teal-bg">📄</div><h3>Proposals</h3><p>Create personalized proposal drafts using the client conversation, requirements and your pricing.</p></div>
+    <div class="feature-card reveal"><div class="f-icon gold-bg">⏰</div><h3>Reminders</h3><p>Never miss a follow-up. Automatic reminders scheduled based on conversation context and deadlines.</p></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-header reveal">
+    <div class="sh-label">Save Hours. Close More.</div>
+    <h2>Show your clients the difference<br><span class="gradient-text">between scattered and automated</span></h2>
+    <p>See what changes when your sales process runs on AI instead of sticky notes and memory.</p>
+  </div>
+  <div class="comparison-section">
+    <div class="comparison-grid reveal">
+      <div class="comparison-card without">
+        <h4>Without ClientPilot AI</h4>
+        <div class="comp-item"><span class="comp-x">✕</span> Notes scattered across apps</div>
+        <div class="comp-item"><span class="comp-x">✕</span> Tasks forgotten after meetings</div>
+        <div class="comp-item"><span class="comp-x">✕</span> Follow-ups missed</div>
+        <div class="comp-item"><span class="comp-x">✕</span> Proposals delayed for days</div>
+        <div class="comp-item"><span class="comp-x">✕</span> Deals slip away</div>
+      </div>
+      <div class="comp-arrow">→</div>
+      <div class="comparison-card with">
+        <h4>With ClientPilot AI</h4>
+        <div class="comp-item"><span class="comp-check">✓</span> AI Summary — key decisions extracted</div>
+        <div class="comp-item"><span class="comp-check">✓</span> Tasks Created — assigned automatically</div>
+        <div class="comp-item"><span class="comp-check">✓</span> Reminder Set — follow-up scheduled</div>
+        <div class="comp-item"><span class="comp-check">✓</span> Proposal Ready — draft prepared</div>
+        <div class="comp-item"><span class="comp-check">✓</span> All organized. Nothing missed.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-header reveal">
+    <div class="sh-label">Command Center</div>
+    <h2>All your sales. All in one<br><span class="gradient-text">intelligent dashboard</span></h2>
+    <p>See what matters today: hot leads, overdue follow-ups, proposal queue, meetings, and the next best action.</p>
+  </div>
+  <div class="dashboard-preview reveal">
+    <div class="db-header">
+      <div class="db-greeting">CP <span>Good morning, Alex</span></div>
+      <div class="db-date">May 12 - May 18</div>
+    </div>
+    <div class="db-body">
+      <div class="db-stats">
+        <div class="db-stat"><div class="db-stat-label">Open Tasks</div><div class="db-stat-value">28</div><div class="db-stat-change up">12% up</div></div>
+        <div class="db-stat"><div class="db-stat-label">Hot Leads</div><div class="db-stat-value">37</div><div class="db-stat-change up">18% up</div></div>
+        <div class="db-stat"><div class="db-stat-label">Lost Lead Rescue</div><div class="db-stat-value">14</div><div class="db-stat-change action">needs action</div></div>
+        <div class="db-stat"><div class="db-stat-label">Follow-Up Reminders</div><div class="db-stat-value">16</div><div class="db-stat-change">due this week</div></div>
+        <div class="db-stat"><div class="db-stat-label">Proposal Queue</div><div class="db-stat-value">8</div><div class="db-stat-change">awaiting review</div></div>
+        <div class="db-stat"><div class="db-stat-label">Sales Activity</div><div class="db-stat-value">92%</div><div class="db-stat-change up">team score</div></div>
+      </div>
+      <div class="db-meetings">
+        <h4>Upcoming Meetings</h4>
+        <div class="db-meeting-item"><span class="db-m-time">Today 11:00</span><span class="db-m-title">Acme Corp Discovery Call</span><span class="db-m-status today">Today</span></div>
+        <div class="db-meeting-item"><span class="db-m-time">Today 2:30</span><span class="db-m-title">Beta Co Proposal Review</span><span class="db-m-status today">Today</span></div>
+        <div class="db-meeting-item"><span class="db-m-time">Tomorrow 10:00</span><span class="db-m-title">Gamma Inc Follow-up</span><span class="db-m-status tomorrow">Tomorrow</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="pipeline-track reveal">
+    <div class="pipeline-stage"><div class="ps-dot"></div><div class="ps-label">New</div><div class="ps-count">12 leads</div></div>
+    <div class="pipeline-stage"><div class="ps-dot"></div><div class="ps-label">Qualified</div><div class="ps-count">8 leads</div></div>
+    <div class="pipeline-stage"><div class="ps-dot"></div><div class="ps-label">Proposal</div><div class="ps-count">5 deals</div></div>
+    <div class="pipeline-stage"><div class="ps-dot"></div><div class="ps-label">Won</div><div class="ps-count">3 closed</div></div>
+  </div>
+</section>
+
+<section class="section" id="workflow">
+  <div class="section-header reveal">
+    <div class="sh-label">Complete AI Workflow</div>
+    <h2>From recorded meeting<br><span class="gradient-text">to finished proposal</span></h2>
+    <p>ClientPilot AI completes the work normally spread across notes, documents, calendars and email tools.</p>
+  </div>
+  <div class="workflow">
+    <div class="workflow-steps">
+      <div class="wf-step reveal"><div class="wf-num">01</div><div class="wf-content"><h3>Upload Audio</h3><p>Add your recorded client meeting. Supports all major audio formats with drag-and-drop simplicity.</p></div></div>
+      <div class="wf-step reveal"><div class="wf-num">02</div><div class="wf-content"><h3>AI Transcription</h3><p>Audio becomes an accurate, timestamped transcript with speaker identification in seconds.</p></div></div>
+      <div class="wf-step reveal"><div class="wf-num">03</div><div class="wf-content"><h3>AI Summary</h3><p>Decisions, needs, objections and next steps are automatically extracted and organized.</p></div></div>
+      <div class="wf-step reveal"><div class="wf-num">04</div><div class="wf-content"><h3>Tasks Created</h3><p>Important actions become assigned tasks with deadlines — nothing falls through the cracks.</p></div></div>
+      <div class="wf-step reveal"><div class="wf-num">05</div><div class="wf-content"><h3>Follow-Up Email</h3><p>AI prepares a professional, context-aware reply ready to send to your client.</p></div></div>
+      <div class="wf-step reveal"><div class="wf-num">06</div><div class="wf-content"><h3>Proposal Ready</h3><p>A personalized client proposal is generated based on the conversation and your templates.</p></div></div>
+      <div class="wf-step reveal"><div class="wf-num">07</div><div class="wf-content"><h3>PDF Export</h3><p>Send or download a polished, branded PDF proposal — professional and client-ready.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-header reveal">
+    <div class="sh-label">AI Meeting Intelligence</div>
+    <h2>Audio to action<br><span class="gradient-text">in real time</span></h2>
+    <p>Watch your meeting transform into structured intelligence while you focus on the client.</p>
+  </div>
+  <div class="dashboard-preview reveal" style="max-width:900px;">
+    <div class="db-header" style="background:linear-gradient(135deg,var(--teal),var(--teal-light));">
+      <div class="db-greeting">AI <span>Transcription in progress</span></div>
+      <div class="db-date">12:48</div>
+    </div>
+    <div class="db-body">
+      <div class="db-meetings">
+        <div class="db-meeting-item" style="background:rgba(15,168,154,0.05);"><span class="db-m-time" style="color:var(--teal);">01</span><span class="db-m-title">Client needs a social media management package.</span></div>
+        <div class="db-meeting-item" style="background:rgba(15,168,154,0.05);"><span class="db-m-time" style="color:var(--teal);">02</span><span class="db-m-title">Budget range is approximately $500 per month.</span></div>
+        <div class="db-meeting-item" style="background:rgba(15,168,154,0.05);"><span class="db-m-time" style="color:var(--teal);">03</span><span class="db-m-title">Weekly reports and WhatsApp updates are required.</span></div>
+        <div class="db-meeting-item" style="background:rgba(15,168,154,0.05);"><span class="db-m-time" style="color:var(--teal);">04</span><span class="db-m-title">Proposal should be delivered before tomorrow.</span></div>
+      </div>
+      <div style="text-align:center; padding:20px; background:linear-gradient(135deg,rgba(142,46,158,0.05),rgba(15,168,154,0.05)); border-radius:var(--radius-md); margin-top:16px;">
+        <div style="font-size:14px; font-weight:700; color:var(--purple);">Complete</div>
+        <div style="font-size:13px; color:var(--charcoal-soft);">Transcript, summary and tasks ready</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-header reveal">
+    <div class="sh-label">AI Communication</div>
+    <h2>Follow-up email<br><span class="gradient-text">generator</span></h2>
+    <p>Professional emails written from your actual meeting context — ready to send in seconds.</p>
+  </div>
+  <div class="dashboard-preview reveal" style="max-width:700px;">
+    <div class="db-body">
+      <div style="border:1px solid rgba(142,46,158,0.1); border-radius:var(--radius-md); padding:24px; background:rgba(142,46,158,0.02);">
+        <div style="display:flex; justify-content:space-between; margin-bottom:16px;">
+          <div><div style="font-size:12px; color:var(--charcoal-mute); margin-bottom:4px;">To</div><div style="font-size:14px; font-weight:600;">client@company.com</div></div>
+          <div style="text-align:right;"><div style="font-size:12px; color:var(--charcoal-mute); margin-bottom:4px;">Subject</div><div style="font-size:14px; font-weight:600;">Your proposal and next steps</div></div>
+        </div>
+        <div style="font-size:14px; color:var(--charcoal-soft); line-height:1.8; padding:16px; background:white; border-radius:var(--radius-sm); border:1px solid rgba(142,46,158,0.06);">
+          Hello Sarah,<br><br>
+          Thank you for today's meeting. Based on your goals, I prepared a proposal with the recommended package, timeline and next steps.<br><br>
+          I'll follow up tomorrow morning.
+        </div>
+        <div style="display:flex; gap:12px; margin-top:16px;">
+          <span style="font-size:12px; font-weight:700; color:var(--purple); background:rgba(142,46,158,0.08); padding:6px 14px; border-radius:100px;">AI generated</span>
+          <span style="font-size:12px; font-weight:700; color:var(--teal); background:rgba(15,168,154,0.08); padding:6px 14px; border-radius:100px;">Ready to send</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-header reveal">
+    <div class="sh-label">Professional Proposals</div>
+    <h2>Proposal and PDF<br><span class="gradient-text">workflow</span></h2>
+    <p>Generate polished, branded proposals from your meeting context — ready to share in one click.</p>
+  </div>
+  <div class="dashboard-preview reveal" style="max-width:700px;">
+    <div class="db-body">
+      <div style="text-align:center; margin-bottom:24px;">
+        <div style="font-size:12px; font-weight:700; color:var(--purple); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">CP</div>
+        <div style="font-size:22px; font-weight:800; color:var(--charcoal);">Social Media Growth Proposal</div>
+        <div style="font-size:14px; color:var(--charcoal-soft); margin-top:4px;">Prepared for Acme Company</div>
+      </div>
+      <div style="background:var(--bg-gray); border-radius:var(--radius-md); padding:24px; margin-bottom:20px;">
+        <div style="font-size:14px; font-weight:700; color:var(--charcoal); margin-bottom:16px;">Recommended package</div>
+        <div style="font-size:32px; font-weight:900; color:var(--purple); margin-bottom:16px;">$500 <span style="font-size:16px; font-weight:500; color:var(--charcoal-mute);">/ month</span></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div style="display:flex; align-items:center; gap:8px; font-size:14px; color:var(--charcoal-soft);"><span style="color:var(--teal); font-weight:700;">✓</span> Strategy and planning</div>
+          <div style="display:flex; align-items:center; gap:8px; font-size:14px; color:var(--charcoal-soft);"><span style="color:var(--teal); font-weight:700;">✓</span> Content creation</div>
+          <div style="display:flex; align-items:center; gap:8px; font-size:14px; color:var(--charcoal-soft);"><span style="color:var(--teal); font-weight:700;">✓</span> Weekly reporting</div>
+          <div style="display:flex; align-items:center; gap:8px; font-size:14px; color:var(--charcoal-soft);"><span style="color:var(--teal); font-weight:700;">✓</span> WhatsApp support</div>
+        </div>
+      </div>
+      <div style="text-align:center;"><span style="display:inline-block; background:var(--grad); color:white; padding:10px 28px; border-radius:100px; font-size:14px; font-weight:700;">PDF Ready</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-header reveal">
+    <div class="sh-label">Customer Support Center</div>
+    <h2>Every issue stays<br><span class="gradient-text">organized</span></h2>
+    <p>Clients submit issues, track status, and communicate securely with your support team.</p>
+  </div>
+  <div class="dashboard-preview reveal" style="max-width:700px;">
+    <div class="db-body">
+      <div style="border:1px solid rgba(142,46,158,0.1); border-radius:var(--radius-md); padding:24px; background:rgba(142,46,158,0.02); margin-bottom:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <span style="font-size:13px; font-weight:700; color:var(--charcoal-mute);">Customer</span>
+          <span style="font-size:12px; font-weight:700; color:var(--purple); background:rgba(142,46,158,0.08); padding:4px 12px; border-radius:100px;">CP-SUP-000127</span>
+        </div>
+        <div style="font-size:15px; font-weight:600; color:var(--charcoal); margin-bottom:16px;">My subscription is not updating.</div>
+        <div style="font-size:12px; color:var(--teal); font-weight:600; margin-bottom:16px;">✓ Owner notified by email</div>
+        <div style="background:white; border-radius:var(--radius-sm); padding:16px; border:1px solid rgba(142,46,158,0.06);">
+          <div style="font-size:13px; font-weight:700; color:var(--purple); margin-bottom:8px;">ClientPilot Support</div>
+          <div style="font-size:14px; color:var(--charcoal-soft);">We've checked your payment and updated the account.</div>
+        </div>
+      </div>
+      <div style="text-align:center;">
+        <span style="display:inline-flex; align-items:center; gap:8px; font-size:14px; font-weight:700; color:var(--teal);">
+          <span style="width:20px; height:20px; background:rgba(15,168,154,0.1); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px;">✓</span>
+          Issue resolved
+        </span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-header reveal">
+    <div class="sh-label">Sales Team Workspace</div>
+    <h2>Owners stay informed while every<br><span class="gradient-text">sales user stays productive</span></h2>
+    <p>Create secure sales accounts, assign work and monitor meetings, clients, tasks, proposals and follow-ups.</p>
+  </div>
+  <div class="dashboard-preview reveal" style="max-width:800px;">
+    <div class="db-header" style="background:linear-gradient(135deg,var(--charcoal),#3D2B4F);">
+      <div class="db-greeting">Sales Activity <span>Team Overview</span></div>
+      <div class="db-date" style="background:rgba(255,255,255,0.1); padding:4px 12px; border-radius:100px;">Live</div>
+    </div>
+    <div class="db-body">
+      <div class="db-meetings">
+        <div class="db-meeting-item">
+          <span style="width:36px; height:36px; background:linear-gradient(135deg,var(--purple),var(--purple-light)); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:12px;">AS</span>
+          <div style="flex:1;"><div style="font-size:14px; font-weight:700; color:var(--charcoal);">Ayesha Saleem</div><div style="font-size:12px; color:var(--charcoal-mute);">12 meetings</div></div>
+          <span style="font-size:14px; font-weight:800; color:var(--teal);">92%</span>
+          <span style="font-size:12px; font-weight:600; color:var(--charcoal-mute);">Top performer</span>
+        </div>
+        <div class="db-meeting-item">
+          <span style="width:36px; height:36px; background:linear-gradient(135deg,var(--teal),var(--teal-light)); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:12px;">UM</span>
+          <div style="flex:1;"><div style="font-size:14px; font-weight:700; color:var(--charcoal);">Usman Malik</div><div style="font-size:12px; color:var(--charcoal-mute);">9 meetings</div></div>
+          <span style="font-size:14px; font-weight:800; color:var(--teal);">86%</span>
+          <span style="font-size:12px; font-weight:600; color:var(--charcoal-mute);">Active</span>
+        </div>
+        <div class="db-meeting-item">
+          <span style="width:36px; height:36px; background:linear-gradient(135deg,var(--gold),var(--gold-soft)); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:12px;">SK</span>
+          <div style="flex:1;"><div style="font-size:14px; font-weight:700; color:var(--charcoal);">Sarah Khan</div><div style="font-size:12px; color:var(--charcoal-mute);">7 meetings</div></div>
+          <span style="font-size:14px; font-weight:800; color:var(--teal);">78%</span>
+          <span style="font-size:12px; font-weight:600; color:var(--charcoal-mute);">Active</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-header reveal">
+    <div class="sh-label">Agency Mode</div>
+    <h2>Built for agencies.<br><span class="gradient-text">Designed for sales teams</span></h2>
+    <p>Owners can create sales users, give them Staff ID + PIN, and track clients, meetings, tasks, and reminders from one workspace.</p>
+  </div>
+  <div class="workflow" style="max-width:1000px;">
+    <div class="workflow-steps">
+      <div class="wf-step reveal"><div class="wf-num" style="width:60px;height:60px;font-size:20px;">1</div><div class="wf-content"><h3>Owner Dashboard</h3><p>Complete business view with all metrics, leads, and team activity in one place.</p></div></div>
+      <div class="wf-step reveal"><div class="wf-num" style="width:60px;height:60px;font-size:20px;">2</div><div class="wf-content"><h3>Create Sales User</h3><p>Add sales staff with unique Staff ID and secure PIN access.</p></div></div>
+      <div class="wf-step reveal"><div class="wf-num" style="width:60px;height:60px;font-size:20px;">3</div><div class="wf-content"><h3>Staff ID + PIN</h3><p>Secure login access with role-based workspace permissions.</p></div></div>
+      <div class="wf-step reveal"><div class="wf-num" style="width:60px;height:60px;font-size:20px;">4</div><div class="wf-content"><h3>Sales Workspace</h3><p>Dedicated client work area for each sales user.</p></div></div>
+      <div class="wf-step reveal"><div class="wf-num" style="width:60px;height:60px;font-size:20px;">5</div><div class="wf-content"><h3>Owner Visibility</h3><p>Track team activity, meetings, and performance in real time.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt" id="features">
+  <div class="section-header reveal">
+    <div class="sh-label">12 Powerful Features</div>
+    <h2>Everything needed to turn<br><span class="gradient-text">conversations into revenue</span></h2>
+    <p>One connected workspace for meetings, clients, tasks, follow-ups, proposals, support and sales teams.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card reveal"><div class="f-icon purple-bg">TX</div><h3>AI Audio Transcription</h3><p>Upload recorded meetings and turn client conversations into searchable transcripts with speaker detection.</p></div>
+    <div class="feature-card reveal"><div class="f-icon teal-bg">AI</div><h3>AI Meeting Summaries</h3><p>Extract client needs, decisions, objections and clear next steps automatically from every conversation.</p></div>
+    <div class="feature-card reveal"><div class="f-icon gold-bg">TK</div><h3>Automatic Task Extraction</h3><p>Important actions become organized tasks so nothing is forgotten — assigned with deadlines automatically.</p></div>
+    <div class="feature-card reveal"><div class="f-icon purple-bg">EM</div><h3>AI Follow-Up Emails</h3><p>Generate professional follow-up emails based on the real meeting conversation and client context.</p></div>
+    <div class="feature-card reveal"><div class="f-icon teal-bg">PR</div><h3>AI Proposal Generator</h3><p>Create personalized proposal drafts using the client conversation, requirements and your pricing.</p></div>
+    <div class="feature-card reveal"><div class="f-icon gold-bg">PDF</div><h3>PDF Proposal Export</h3><p>Download polished client-ready proposals and share them professionally with one click.</p></div>
+    <div class="feature-card reveal"><div class="f-icon purple-bg">CT</div><h3>Client Timeline</h3><p>See meetings, tasks, reminders, proposals and follow-ups in one unified activity history.</p></div>
+    <div class="feature-card reveal"><div class="f-icon teal-bg">PL</div><h3>Smart Pipeline</h3><p>Track every lead from first conversation through proposal, follow-up and closing with visual stages.</p></div>
+    <div class="feature-card reveal"><div class="f-icon gold-bg">SA</div><h3>Sales Activity</h3><p>Monitor clients, meetings, tasks, reminders and proposals created by each sales user in real time.</p></div>
+    <div class="feature-card reveal"><div class="f-icon purple-bg">ST</div><h3>Sales Team Workspace</h3><p>Create secure Staff ID and PIN accounts with role-based workspace access for your entire team.</p></div>
+    <div class="feature-card reveal"><div class="f-icon teal-bg">SP</div><h3>Customer Support Center</h3><p>Clients can submit issues, track status and securely communicate with your support team.</p></div>
+    <div class="feature-card reveal"><div class="f-icon gold-bg">ML</div><h3>Mobile Workspace</h3><p>Manage your sales workflow from desktop, tablet or mobile with fully responsive navigation.</p></div>
+  </div>
+</section>
+
+<section class="section" id="pricing">
+  <div class="section-header reveal">
+    <div class="sh-label">Simple Pricing</div>
+    <h2>Start free. Upgrade when<br><span class="gradient-text">your sales grow</span></h2>
+    <p>All plans include core AI features. Choose what fits your team size and meeting volume.</p>
+  </div>
+  <div class="pricing-grid">
+    <div class="pricing-card reveal">
+      <div class="pc-tag">Core AI Features</div>
+      <div class="pc-name">Free</div>
+      <div class="pc-desc">Start testing</div>
+      <div class="pc-price">$0<span>/month</span></div>
+      <ul>
+        <li>5 AI meetings per month</li>
+        <li>AI audio transcription</li>
+        <li>AI meeting summaries</li>
+        <li>Automatic task extraction</li>
+        <li>Client memory CRM</li>
+        <li>Tasks and reminders</li>
+        <li>AI proposal builder</li>
+        <li>PDF proposal export</li>
+        <li>Customer Support Center</li>
+        <li>1 owner account</li>
+      </ul>
+      <a href="https://www.makzora.com/clientpilotai/login" class="pc-btn ghost">Start Free</a>
+    </div>
+    <div class="pricing-card popular reveal">
+      <div class="pc-tag">Core AI Features</div>
+      <div class="pc-name">Starter</div>
+      <div class="pc-desc">For solo sellers</div>
+      <div class="pc-price">$19<span>/month</span></div>
+      <ul>
+        <li>Everything in Free</li>
+        <li>20 AI meetings per month</li>
+        <li>1 included sales user</li>
+        <li>AI follow-up emails</li>
+        <li>Client Timeline</li>
+        <li>Follow-up management</li>
+        <li>Google Calendar links</li>
+        <li>Automatic support emails</li>
+        <li>Email support</li>
+      </ul>
+      <a href="https://www.makzora.com/clientpilotai/login" class="pc-btn primary">Start Starter</a>
+    </div>
+    <div class="pricing-card reveal">
+      <div class="pc-tag">Core AI Features</div>
+      <div class="pc-name">Pro</div>
+      <div class="pc-desc">For growing teams</div>
+      <div class="pc-price">$39<span>/month</span></div>
+      <ul>
+        <li>Everything in Starter</li>
+        <li>80 AI meetings per month</li>
+        <li>2 included sales users</li>
+        <li>Sales Activity dashboard</li>
+        <li>Smart sales pipeline</li>
+        <li>Lead scoring</li>
+        <li>Lost lead rescue</li>
+        <li>Advanced proposal workflow</li>
+        <li>Priority support</li>
+      </ul>
+      <a href="https://www.makzora.com/clientpilotai/login" class="pc-btn ghost">Start Pro</a>
+    </div>
+    <div class="pricing-card reveal">
+      <div class="pc-tag">Core AI Features</div>
+      <div class="pc-name">Agency</div>
+      <div class="pc-desc">For agencies</div>
+      <div class="pc-price">$80<span>/month</span></div>
+      <ul>
+        <li>Everything in Pro</li>
+        <li>300 AI meetings per month</li>
+        <li>5 included sales users</li>
+        <li>Sales team management</li>
+        <li>Team performance visibility</li>
+        <li>Agency command center</li>
+        <li>Multi-user collaboration</li>
+        <li>Advanced analytics</li>
+        <li>Priority support</li>
+      </ul>
+      <a href="https://www.makzora.com/clientpilotai/login" class="pc-btn ghost">Start Agency</a>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section" id="contact">
+  <div class="section-header reveal">
+    <h2>Make your sales process<br><span class="gradient-text">feel effortless</span></h2>
+    <p>Let ClientPilot AI handle the busywork so you can focus on closing deals.</p>
+    <a href="https://www.makzora.com/clientpilotai/login" class="cta-btn">Start Free Today</a>
+  </div>
+</section>
+
+<footer class="footer" id="footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="fb-logo">
+        <div class="cp-icon">CP</div>
+        <span>ClientPilot AI</span>
+      </div>
+      <p>AI-powered sales automation that turns every client conversation into action. Built for agencies. Designed for sales teams.</p>
+      <div class="dev-by">
+        <div class="mak-icon">
+          <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="makGradL2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#8E2E9E"/><stop offset="100%" stop-color="#B23FB8"/></linearGradient>
+              <linearGradient id="makGradR2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0FA89A"/><stop offset="100%" stop-color="#1CC9B8"/></linearGradient>
+            </defs>
+            <path d="M10 85 L10 15 L35 15 L50 45 L65 15 L90 15 L90 85 L70 85 L70 45 L50 75 L30 45 L30 85 Z" fill="url(#makGradL2)"/>
+            <path d="M50 75 L70 45 L70 85 L90 85 L90 15 L65 15 L50 45 Z" fill="url(#makGradR2)"/>
+            <circle cx="20" cy="25" r="2" fill="white" opacity="0.8"/><circle cx="15" cy="35" r="1.5" fill="white" opacity="0.6"/>
+            <circle cx="25" cy="40" r="1.5" fill="white" opacity="0.7"/><circle cx="18" cy="50" r="2" fill="white" opacity="0.5"/>
+            <circle cx="22" cy="60" r="1.5" fill="white" opacity="0.6"/><circle cx="16" cy="70" r="2" fill="white" opacity="0.7"/>
+            <circle cx="80" cy="25" r="2" fill="white" opacity="0.8"/><circle cx="85" cy="35" r="1.5" fill="white" opacity="0.6"/>
+            <circle cx="75" cy="40" r="1.5" fill="white" opacity="0.7"/><circle cx="82" cy="50" r="2" fill="white" opacity="0.5"/>
+            <circle cx="78" cy="60" r="1.5" fill="white" opacity="0.6"/><circle cx="84" cy="70" r="2" fill="white" opacity="0.7"/>
+          </svg>
+        </div>
+        <div class="dev-text">
+          <strong>Developed by Makzora</strong>
+          Build. Brand. Automate. Grow.
+        </div>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Product</h4>
+      <ul>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#workflow">Workflow</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#">Changelog</a></li>
+        <li><a href="#">Roadmap</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="https://www.makzora.com" target="_blank">Makzora</a></li>
+        <li><a href="https://www.makzora.com" target="_blank">About</a></li>
+        <li><a href="https://www.makzora.com" target="_blank">Blog</a></li>
+        <li><a href="https://www.makzora.com" target="_blank">Careers</a></li>
+        <li><a href="https://www.makzora.com" target="_blank">Press</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="https://www.makzora.com/clientpilotai/privacy-policy" target="_blank">Privacy Policy</a></li>
+        <li><a href="https://www.makzora.com/clientpilotai/terms" target="_blank">Terms of Service</a></li>
+        <li><a href="https://www.makzora.com/clientpilotai/refund-policy" target="_blank">Refund</a></li>
+        <li><a href="https://www.makzora.com/clientpilotai/contact" target="_blank">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-contact">
+    <div class="fc-info">
+      <a href="mailto:info@makzora.com">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        info@makzora.com
+      </a>
+      <a href="https://www.makzora.com" target="_blank">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        www.makzora.com
+      </a>
+    </div>
+    <div class="fc-social">
+      <a href="https://www.instagram.com/makzoraai/" target="_blank" rel="noopener noreferrer" title="Instagram">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+      </a>
+      <a href="https://www.facebook.com/people/Makzora-AI/pfbid031uMYGZGGZpAtrNaaBiEgVGugwbWUpeWpXambPdVtDf2CezZ9qvgD3XWzFmdS2QySl/" target="_blank" rel="noopener noreferrer" title="Facebook">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M22 12.07C22 6.51 17.52 2 12 2S2 6.51 2 12.07C2 17.09 5.66 21.25 10.44 22v-7.03H7.9v-2.9h2.54V9.86c0-2.52 1.49-3.91 3.77-3.91 1.09 0 2.23.2 2.23.2v2.47h-1.26c-1.24 0-1.63.78-1.63 1.57v1.88h2.77l-.44 2.9h-2.33V22C18.34 21.25 22 17.09 22 12.07z"/></svg>
+      </a>
+      <a href="https://www.tiktok.com/@makzora.com" target="_blank" rel="noopener noreferrer" title="TikTok">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.2v12.26a2.7 2.7 0 1 1-2.7-2.7c.27 0 .53.04.78.11V8.4a6 6 0 1 0 5.12 5.93V8.1a8 8 0 0 0 4.77 1.52V6.69z"/></svg>
+      </a>
+      <a href="https://www.makzora.com" target="_blank" rel="noopener noreferrer" title="Makzora Website">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      </a>
+    </div>
+  </div>
+  <div class="footer-bottom">&copy; 2026 ClientPilot AI. All rights reserved. Developed by Makzora.</div>
+</footer>
+
+<script>
+// Three.js 3D Background
+const canvas = document.getElementById('three-canvas');
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+// Particles
+const particleCount = 200;
+const positions = new Float32Array(particleCount * 3);
+const colors = new Float32Array(particleCount * 3);
+const color1 = new THREE.Color(0x8E2E9E), color2 = new THREE.Color(0x0FA89A), color3 = new THREE.Color(0xC9A233);
+for (let i = 0; i < particleCount; i++) {
+    positions[i * 3] = (Math.random() - 0.5) * 20;
+    positions[i * 3 + 1] = (Math.random() - 0.5) * 20;
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 10;
+    const mc = Math.random();
+    let c = mc < 0.4 ? color1 : mc < 0.7 ? color2 : color3;
+    colors[i * 3] = c.r; colors[i * 3 + 1] = c.g; colors[i * 3 + 2] = c.b;
+}
+const geometry = new THREE.BufferGeometry();
+geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+const material = new THREE.PointsMaterial({
+    size: 0.08, vertexColors: true, transparent: true, opacity: 0.7,
+    blending: THREE.AdditiveBlending, sizeAttenuation: true
+});
+const particles = new THREE.Points(geometry, material);
+scene.add(particles);
+
+// Floating shapes
+const shapes = [];
+const shapeGeos = [
+    new THREE.IcosahedronGeometry(0.3, 0),
+    new THREE.OctahedronGeometry(0.25, 0),
+    new THREE.TetrahedronGeometry(0.2, 0),
+    new THREE.TorusGeometry(0.2, 0.08, 8, 20)
+];
+for (let i = 0; i < 15; i++) {
+    const geo = shapeGeos[i % shapeGeos.length];
+    const mat = new THREE.MeshBasicMaterial({
+        color: i % 3 === 0 ? 0x8E2E9E : i % 3 === 1 ? 0x0FA89A : 0xC9A233,
+        transparent: true, opacity: 0.12, wireframe: true
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set((Math.random() - 0.5) * 15, (Math.random() - 0.5) * 15, (Math.random() - 0.5) * 8);
+    mesh.userData = { speed: Math.random() * 0.01 + 0.005, rotSpeed: { x: Math.random() * 0.02, y: Math.random() * 0.02 } };
+    scene.add(mesh); shapes.push(mesh);
+}
+
+camera.position.z = 5;
+let mouseX = 0, mouseY = 0;
+document.addEventListener('mousemove', e => {
+    mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+    mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+});
+
+function animate() {
+    requestAnimationFrame(animate);
+    particles.rotation.y += 0.0005;
+    particles.rotation.x += 0.0002;
+    particles.position.x += mouseX * 0.002;
+    particles.position.y += mouseY * 0.002;
+    shapes.forEach(s => {
+        s.rotation.x += s.userData.rotSpeed.x;
+        s.rotation.y += s.userData.rotSpeed.y;
+        s.position.y += Math.sin(Date.now() * 0.001 + s.position.x) * 0.002;
+    });
+    renderer.render(scene, camera);
+}
+animate();
+
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// Navbar scroll
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+    if (window.scrollY > 50) navbar.classList.add('scrolled');
+    else navbar.classList.remove('scrolled');
+});
+
+// Scroll reveal
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('active'); });
+}, { threshold: 0.1 });
+reveals.forEach(r => observer.observe(r));
+</script>
+
+</body>
+</html>
