@@ -1,12 +1,13 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     {
       "source": "/clientpilotai",
-      "destination": "https://clientpilot-ai-olive.vercel.app/clientpilotai"
+      "destination": "https://app.makzora.com/clientpilotai"
     },
     {
       "source": "/clientpilotai/:path*",
-      "destination": "https://clientpilot-ai-olive.vercel.app/clientpilotai/:path*"
+      "destination": "https://app.makzora.com/clientpilotai/:path*"
     }
   ]
 }
