@@ -1,5 +1,12 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    {
+      "source": "/portfolio",
+      "destination": "/portfolio/",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     {
       "source": "/clientpilotai",
@@ -10,7 +17,7 @@
       "destination": "https://clientpilot-ai-olive.vercel.app/clientpilotai/:path*"
     },
     {
-      "source": "/portfolio",
+      "source": "/portfolio/",
       "destination": "https://portfolio-pearl-eight-woulpglr7g.vercel.app/"
     },
     {
