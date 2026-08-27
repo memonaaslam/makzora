@@ -8,6 +8,14 @@
     {
       "source": "/clientpilotai/:path*",
       "destination": "https://clientpilot-ai-olive.vercel.app/clientpilotai/:path*"
+    },
+    {
+      "source": "/portfolio",
+      "destination": "https://portfolio-pearl-eight-woulpglr7g.vercel.app/"
+    },
+    {
+      "source": "/portfolio/:path*",
+      "destination": "https://portfolio-pearl-eight-woulpglr7g.vercel.app/:path*"
     }
   ]
 }
