@@ -11,11 +11,11 @@
     },
     {
       "source": "/portfolio",
-      "destination": "https://portfolio-pearl-eight-woulpglr7g.vercel.app"
+      "destination": "https://portfolio-pearl-eight-woulpglr7g.vercel.app/portfolio"
     },
     {
       "source": "/portfolio/:path*",
-      "destination": "https://portfolio-pearl-eight-woulpglr7g.vercel.app/:path*"
+      "destination": "https://portfolio-pearl-eight-woulpglr7g.vercel.app/portfolio/:path*"
     }
   ]
 }
